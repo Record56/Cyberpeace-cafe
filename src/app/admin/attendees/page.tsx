@@ -17,6 +17,7 @@ interface Attendee {
   validTo: string;
   venue: string;
   emailStatus: string;
+  emailError?: string;
   status: string;
   checkedInAt?: string;
 }
@@ -56,11 +57,20 @@ export default function AttendeesPage() {
     setLoading(true);
     setMessage("");
     try {
-      await api("/api/attendees", {
+      const data = await api<{ attendee: Attendee }>("/api/attendees", {
         method: "POST",
         body: JSON.stringify(form),
       });
-      setMessage("Attendee created. QR pass generated.");
+      const emailStatus = data.attendee.emailStatus;
+      if (emailStatus === "sent") {
+        setMessage("Attendee created. QR pass emailed successfully.");
+      } else if (emailStatus === "failed") {
+        setMessage(
+          `Attendee created, but email failed: ${data.attendee.emailError || "check SMTP settings"}`
+        );
+      } else {
+        setMessage("Attendee created. QR pass generated (email not sent).");
+      }
       setForm((f) => ({ ...f, name: "", email: "", phone: "" }));
       await load();
     } catch (err) {
