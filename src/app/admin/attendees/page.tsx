@@ -26,6 +26,7 @@ export default function AttendeesPage() {
   const [items, setItems] = useState<Attendee[]>([]);
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
+  const [status, setStatus] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -40,10 +41,11 @@ export default function AttendeesPage() {
     sendEmail: true,
   });
 
-  async function load() {
+  async function load(nextStatus = status) {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (category) params.set("category", category);
+    if (nextStatus) params.set("status", nextStatus);
     const data = await api<{ items: Attendee[] }>(`/api/attendees?${params}`);
     setItems(data.items);
   }
@@ -240,6 +242,30 @@ export default function AttendeesPage() {
         </form>
 
         <section className="panel p-5">
+          <div className="mb-3 flex flex-wrap gap-2">
+            {(
+              [
+                { value: "", label: "All list" },
+                { value: "checked_in", label: "Verified" },
+                { value: "registered", label: "Not verified" },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.value || "all"}
+                type="button"
+                className={`btn !px-3 !py-2 text-sm ${
+                  status === opt.value ? "btn-primary" : "btn-ghost"
+                }`}
+                onClick={() => {
+                  setStatus(opt.value);
+                  load(opt.value).catch((err) => setMessage(err.message));
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
           <div className="mb-4 flex flex-wrap gap-2">
             <input
               className="min-w-[180px] flex-1 rounded-xl border border-[var(--line)] bg-[rgba(7,17,31,0.65)] px-3 py-2"
