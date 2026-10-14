@@ -1,0 +1,6 @@
+name,email,phone,category,eventDate,validFrom,validTo,venue
+Aarav Sharma,aarav@example.com,9000000001,VIP Pass,2026-10-11,2026-10-11,2026-10-13,Main Convention Hall
+Meera Joshi,meera@example.com,9000000002,Media Pass,2026-10-11,2026-10-11,2026-10-11,Main Convention Hall
+Kabir Singh,kabir@example.com,9000000003,Organiser Pass,2026-10-11,2026-10-11,2026-10-13,Main Convention Hall
+Ananya Rao,ananya@example.com,9000000004,Finalist Pass,2026-10-11,2026-10-11,2026-10-11,Main Convention Hall
+Rohan Verma,rohan@example.com,9000000005,Audience Pass,2026-10-11,2026-10-11,2026-10-11,Main Convention Hall
