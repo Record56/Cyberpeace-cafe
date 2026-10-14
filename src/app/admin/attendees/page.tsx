@@ -1,9 +1,12 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { Pagination } from "@/components/Pagination";
 import { StatusBadge } from "@/components/StatusBadge";
 import { PASS_CATEGORIES } from "@/lib/constants";
 import { api } from "@/lib/api-client";
+
+const PAGE_SIZE = 25;
 
 interface Attendee {
   _id: string;
@@ -27,6 +30,8 @@ export default function AttendeesPage() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -41,13 +46,24 @@ export default function AttendeesPage() {
     sendEmail: true,
   });
 
-  async function load(nextStatus = status) {
+  async function load(
+    nextStatus = status,
+    nextPage = page,
+    resetPage = false
+  ) {
+    const pageToLoad = resetPage ? 1 : nextPage;
     const params = new URLSearchParams();
+    params.set("page", String(pageToLoad));
+    params.set("limit", String(PAGE_SIZE));
     if (q) params.set("q", q);
     if (category) params.set("category", category);
     if (nextStatus) params.set("status", nextStatus);
-    const data = await api<{ items: Attendee[] }>(`/api/attendees?${params}`);
+    const data = await api<{ items: Attendee[]; total: number; page: number }>(
+      `/api/attendees?${params}`
+    );
     setItems(data.items);
+    setTotal(data.total);
+    setPage(data.page);
   }
 
   useEffect(() => {
@@ -74,7 +90,7 @@ export default function AttendeesPage() {
         setMessage("Attendee created. QR pass generated (email not sent).");
       }
       setForm((f) => ({ ...f, name: "", email: "", phone: "" }));
-      await load();
+      await load(status, 1, true);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Create failed");
     } finally {
@@ -96,7 +112,7 @@ export default function AttendeesPage() {
       setMessage(
         `Bulk upload done: ${data.createdCount} created, ${data.errorCount} errors.`
       );
-      await load();
+      await load(status, 1, true);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Bulk upload failed");
     } finally {
@@ -117,7 +133,9 @@ export default function AttendeesPage() {
   async function remove(id: string) {
     if (!confirm("Delete this attendee?")) return;
     await api(`/api/attendees/${id}`, { method: "DELETE" });
-    await load();
+    const nextTotal = Math.max(0, total - 1);
+    const lastPage = Math.max(1, Math.ceil(nextTotal / PAGE_SIZE));
+    await load(status, Math.min(page, lastPage));
   }
 
   return (
@@ -258,7 +276,7 @@ export default function AttendeesPage() {
                 }`}
                 onClick={() => {
                   setStatus(opt.value);
-                  load(opt.value).catch((err) => setMessage(err.message));
+                  load(opt.value, 1, true).catch((err) => setMessage(err.message));
                 }}
               >
                 {opt.label}
@@ -285,7 +303,12 @@ export default function AttendeesPage() {
                 </option>
               ))}
             </select>
-            <button className="btn btn-ghost" onClick={() => load()}>
+            <button
+              className="btn btn-ghost"
+              onClick={() =>
+                load(status, 1, true).catch((err) => setMessage(err.message))
+              }
+            >
               Filter
             </button>
           </div>
@@ -347,6 +370,15 @@ export default function AttendeesPage() {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            page={page}
+            limit={PAGE_SIZE}
+            total={total}
+            onPageChange={(next) => {
+              load(status, next).catch((err) => setMessage(err.message));
+            }}
+          />
         </section>
       </div>
     </div>
