@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Html5Qrcode } from "html5-qrcode";
+import { Pagination } from "@/components/Pagination";
 import { StatusBadge } from "@/components/StatusBadge";
 import { PASS_CATEGORIES } from "@/lib/constants";
 import { api } from "@/lib/api-client";
+
+const PAGE_SIZE = 20;
 
 interface ScanResult {
   ok: boolean;
@@ -71,6 +74,7 @@ export default function ScannerPage() {
   const [tab, setTab] = useState<Tab>("scan");
   const [items, setItems] = useState<AttendeeRow[]>([]);
   const [listTotal, setListTotal] = useState(0);
+  const [listPage, setListPage] = useState(1);
   const [listLoading, setListLoading] = useState(false);
   const [listQ, setListQ] = useState("");
   const [listCategory, setListCategory] = useState("");
@@ -94,34 +98,45 @@ export default function ScannerPage() {
   }, [router]);
 
   const loadList = useCallback(
-    async (which: "all" | "verified") => {
+    async (
+      which: "all" | "verified",
+      nextPage = listPage,
+      resetPage = false
+    ) => {
+      const pageToLoad = resetPage ? 1 : nextPage;
       setListLoading(true);
       setListError("");
       try {
         const params = new URLSearchParams();
-        params.set("limit", "100");
+        params.set("page", String(pageToLoad));
+        params.set("limit", String(PAGE_SIZE));
         if (listQ.trim()) params.set("q", listQ.trim());
         if (listCategory) params.set("category", listCategory);
         if (which === "verified") params.set("status", "checked_in");
-        const data = await api<{ items: AttendeeRow[]; total: number }>(
-          `/api/attendees?${params}`
-        );
+        const data = await api<{
+          items: AttendeeRow[];
+          total: number;
+          page: number;
+        }>(`/api/attendees?${params}`);
         setItems(data.items);
         setListTotal(data.total);
+        setListPage(data.page);
       } catch (err) {
         setListError(err instanceof Error ? err.message : "Failed to load list");
       } finally {
         setListLoading(false);
       }
     },
-    [listQ, listCategory]
+    [listQ, listCategory, listPage]
   );
 
   useEffect(() => {
     if (tab === "all" || tab === "verified") {
-      loadList(tab).catch(() => undefined);
+      loadList(tab, 1, true).catch(() => undefined);
     }
-  }, [tab, loadList]);
+    // Reset to page 1 when switching tabs; filters apply via Filter button
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
   function openResultModal(data: ScanResult) {
     setResult(data);
@@ -148,6 +163,7 @@ export default function ScannerPage() {
       scannerRef.current = null;
       setScanning(false);
     }
+    if (next !== tab) setListPage(1);
     setTab(next);
   }
 
@@ -326,7 +342,7 @@ export default function ScannerPage() {
             </div>
             <button
               className="btn btn-ghost !px-3 !py-2 text-sm"
-              onClick={() => loadList(tab)}
+              onClick={() => loadList(tab, listPage)}
               disabled={listLoading}
             >
               Refresh
@@ -354,7 +370,7 @@ export default function ScannerPage() {
             </select>
             <button
               className="btn btn-ghost !px-3 !py-2 text-sm"
-              onClick={() => loadList(tab)}
+              onClick={() => loadList(tab, 1, true)}
             >
               Filter
             </button>
@@ -398,6 +414,14 @@ export default function ScannerPage() {
               </li>
             ) : null}
           </ul>
+
+          <Pagination
+            page={listPage}
+            limit={PAGE_SIZE}
+            total={listTotal}
+            disabled={listLoading}
+            onPageChange={(next) => loadList(tab, next)}
+          />
         </section>
       )}
 

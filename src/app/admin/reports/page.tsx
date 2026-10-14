@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Pagination } from "@/components/Pagination";
 import { StatusBadge } from "@/components/StatusBadge";
 import { PASS_CATEGORIES } from "@/lib/constants";
 import { api } from "@/lib/api-client";
+
+const PAGE_SIZE = 25;
 
 interface Entry {
   _id: string;
@@ -19,6 +22,9 @@ interface Entry {
 
 interface ReportData {
   entries: Entry[];
+  total: number;
+  page: number;
+  limit: number;
   categorySummary: Array<{
     category: string;
     total: number;
@@ -40,17 +46,23 @@ interface ReportData {
 export default function ReportsPage() {
   const [data, setData] = useState<ReportData | null>(null);
   const [category, setCategory] = useState("");
+  const [page, setPage] = useState(1);
   const [message, setMessage] = useState("");
 
-  async function load() {
+  async function load(nextPage = page, resetPage = false) {
+    const pageToLoad = resetPage ? 1 : nextPage;
     const params = new URLSearchParams();
+    params.set("page", String(pageToLoad));
+    params.set("limit", String(PAGE_SIZE));
     if (category) params.set("category", category);
     const report = await api<ReportData>(`/api/reports?${params}`);
     setData(report);
+    setPage(report.page);
   }
 
   useEffect(() => {
-    load().catch((err) => setMessage(err.message));
+    load(1, true).catch((err) => setMessage(err.message));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function exportCsv() {
@@ -82,7 +94,12 @@ export default function ReportsPage() {
               </option>
             ))}
           </select>
-          <button className="btn btn-ghost" onClick={() => load()}>
+          <button
+            className="btn btn-ghost"
+            onClick={() =>
+              load(1, true).catch((err) => setMessage(err.message))
+            }
+          >
             Refresh
           </button>
           <button className="btn btn-primary" onClick={exportCsv}>
@@ -151,6 +168,14 @@ export default function ReportsPage() {
             </tbody>
           </table>
         </div>
+        <Pagination
+          page={page}
+          limit={PAGE_SIZE}
+          total={data?.total || 0}
+          onPageChange={(next) =>
+            load(next).catch((err) => setMessage(err.message))
+          }
+        />
       </section>
 
       <section className="panel p-5">

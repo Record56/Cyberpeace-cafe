@@ -13,18 +13,23 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const onlyCheckedIn = searchParams.get("checkedIn") !== "false";
+    const page = Math.max(1, Number(searchParams.get("page") || 1));
+    const limit = Math.min(100, Number(searchParams.get("limit") || 25));
 
     const filter: Record<string, unknown> = {};
     if (onlyCheckedIn) filter.status = "checked_in";
     if (category) filter.category = category;
 
-    const [entries, categorySummary, recentLogs] = await Promise.all([
+    const [entries, total, categorySummary, recentLogs] = await Promise.all([
       Attendee.find(filter)
         .sort({ checkedInAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
         .select(
           "name email ticketId category status checkedInAt checkedInByName eventDate venue"
         )
         .lean(),
+      Attendee.countDocuments(filter),
       Attendee.aggregate([
         {
           $group: {
@@ -45,6 +50,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json({
       entries,
+      total,
+      page,
+      limit,
       categorySummary: categorySummary.map((row) => ({
         category: row._id,
         total: row.total,
