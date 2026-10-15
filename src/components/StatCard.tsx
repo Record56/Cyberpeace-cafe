@@ -20,8 +20,14 @@ export function StatCard({
 
   return (
     <div className="panel rise p-5">
-      <p className="text-sm text-[var(--muted)]">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight" style={{ color: toneColor }}>
+      <p className="page-kicker !mb-0">{label}</p>
+      <p
+        className="mt-2 text-3xl font-bold tracking-tight"
+        style={{
+          color: toneColor,
+          fontFamily: "var(--font-display), Trebuchet MS, sans-serif",
+        }}
+      >
         {value}
       </p>
       {hint ? <p className="mt-2 text-xs text-[var(--muted)]">{hint}</p> : null}

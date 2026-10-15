@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const links = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/attendees", label: "Attendees" },
+  { href: "/admin/staff", label: "Staff" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/reports", label: "Reports" },
   { href: "/scanner", label: "Scanner" },
@@ -22,17 +24,29 @@ export function AdminNav({ userName }: { userName: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[rgba(7,17,31,0.85)] backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-[rgba(34,211,238,0.28)] bg-[rgba(5,5,10,0.88)] backdrop-blur-md shadow-[0_0_24px_rgba(34,211,238,0.08)]">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] font-bold text-[#04201c]">
-            CP
-          </div>
+        <Link href="/admin" className="flex items-center gap-3">
+          <Image
+            src="/cyberpeace-cafe-logo.jpg"
+            alt="CyberPeace Café"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-xl object-cover ring-2 ring-[rgba(34,211,238,0.55)] shadow-[0_0_16px_rgba(34,211,238,0.35)]"
+            priority
+          />
           <div>
-            <p className="text-sm font-semibold tracking-wide">CyberPeace Cafe</p>
-            <p className="text-xs text-[var(--muted)]">Event Pass Control</p>
+            <p
+              className="text-sm font-bold uppercase tracking-[0.12em]"
+              style={{ fontFamily: "var(--font-display), Trebuchet MS, sans-serif" }}
+            >
+              CyberPeace Cafe
+            </p>
+            <p className="text-xs uppercase tracking-[0.14em] text-[var(--gold)]">
+              Arena Control
+            </p>
           </div>
-        </div>
+        </Link>
 
         <nav className="flex flex-wrap gap-1">
           {links.map((link) => {
@@ -43,11 +57,12 @@ export function AdminNav({ userName }: { userName: string }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
+                className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition ${
                   active
-                    ? "bg-[rgba(45,212,191,0.15)] text-[var(--accent)]"
-                    : "text-[var(--muted)] hover:bg-[rgba(255,255,255,0.04)] hover:text-white"
+                    ? "bg-[rgba(34,211,238,0.14)] text-[var(--accent)] shadow-[0_0_12px_rgba(34,211,238,0.2)]"
+                    : "text-[var(--muted)] hover:bg-[rgba(34,211,238,0.06)] hover:text-white"
                 }`}
+                style={{ fontFamily: "var(--font-display), Trebuchet MS, sans-serif" }}
               >
                 {link.label}
               </Link>

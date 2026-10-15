@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Html5Qrcode } from "html5-qrcode";
 import { Pagination } from "@/components/Pagination";
@@ -252,13 +253,23 @@ export default function ScannerPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-xl px-4 py-5">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-            Mobile Staff Scanner
-          </p>
-          <h1 className="text-2xl font-semibold">QR Entry Gate</h1>
-          <p className="text-sm text-[var(--muted)]">{userName}</p>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Image
+            src="/cyberpeace-cafe-logo.jpg"
+            alt="CyberPeace Café"
+            width={44}
+            height={44}
+            className="h-11 w-11 rounded-xl object-cover ring-2 ring-[rgba(34,211,238,0.55)] shadow-[0_0_14px_rgba(34,211,238,0.3)]"
+            priority
+          />
+          <div>
+            <p className="page-kicker !mb-0">Mobile Staff Scanner</p>
+            <h1 className="text-2xl font-bold uppercase tracking-[0.06em]">
+              QR Entry Gate
+            </h1>
+            <p className="text-sm text-[var(--muted)]">{userName}</p>
+          </div>
         </div>
         <button className="btn btn-ghost !px-3 !py-2 text-sm" onClick={logout}>
           Logout

@@ -5,19 +5,19 @@ export function StatusBadge({
 }) {
   const map: Record<string, { bg: string; color: string; border: string }> = {
     checked_in: {
-      bg: "rgba(52,211,153,0.12)",
-      color: "#6ee7b7",
-      border: "rgba(52,211,153,0.35)",
+      bg: "rgba(57,255,20,0.12)",
+      color: "#86efac",
+      border: "rgba(57,255,20,0.4)",
     },
     registered: {
-      bg: "rgba(56,189,248,0.12)",
-      color: "#7dd3fc",
-      border: "rgba(56,189,248,0.35)",
+      bg: "rgba(34,211,238,0.12)",
+      color: "#67e8f9",
+      border: "rgba(34,211,238,0.4)",
     },
     sent: {
-      bg: "rgba(52,211,153,0.12)",
-      color: "#6ee7b7",
-      border: "rgba(52,211,153,0.35)",
+      bg: "rgba(57,255,20,0.12)",
+      color: "#86efac",
+      border: "rgba(57,255,20,0.4)",
     },
     failed: {
       bg: "rgba(248,113,113,0.12)",
