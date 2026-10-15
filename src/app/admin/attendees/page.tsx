@@ -141,7 +141,8 @@ export default function AttendeesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold">Attendees</h1>
+        <p className="page-kicker">Pass Drop</p>
+        <h1 className="text-3xl font-bold uppercase tracking-[0.06em]">Attendees</h1>
         <p className="mt-1 text-[var(--muted)]">
           Create one-by-one or bulk upload CSV/Excel. Generate & resend QR passes.
         </p>

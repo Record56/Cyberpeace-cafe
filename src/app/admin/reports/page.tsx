@@ -76,7 +76,10 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold">Entry reports</h1>
+          <p className="page-kicker">Match Logs</p>
+          <h1 className="text-3xl font-bold uppercase tracking-[0.06em]">
+            Entry reports
+          </h1>
           <p className="mt-1 text-[var(--muted)]">
             Name, category, check-in time, verifying staff, and CSV export.
           </p>
